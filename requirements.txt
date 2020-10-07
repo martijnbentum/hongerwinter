@@ -1,0 +1,7 @@
+django==2.2.13
+django_select2
+Pillow>=6.2.2
+python-decouple
+django-easy-audit
+django-redis
+lxml
