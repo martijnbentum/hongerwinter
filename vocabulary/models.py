@@ -7,8 +7,8 @@ class base(models.Model):
 	def __str__(self):
 		if hasattr(self,'name'):
 			return self.name
-		if hasattr(self,'word'):
-			return self.word
+		if hasattr(self,'w_word'):
+			return self.w_word
 		if hasattr(self,'title'):
 			return self.title
 		raise ValueError('no known attribute to set __str__')
@@ -20,6 +20,9 @@ class Word(base,info):
 	count = models.PositiveIntegerField(null=True,blank=True)
 	word_class = models.CharField(max_length=300)
 	pos = models.CharField(max_length=100)
+	national = models.BooleanField(default = False)
+	regional= models.BooleanField(default=False)
+	colonial= models.BooleanField(default=False)
 
 	class Meta:
 		unique_together = [['w_word','pos']]
@@ -28,6 +31,7 @@ class Word(base,info):
 class Paper(base,info):
 	title= models.CharField(max_length=400)
 	location= models.CharField(max_length=400)
+	location_category = models.CharField(max_length=400,default = '')
 	language= models.CharField(max_length=400)
 	ids= models.CharField(max_length=400)
 	link = models.CharField(max_length=400,unique=True)
@@ -51,17 +55,18 @@ class Article(base,info):
 	nword_tokens = models.PositiveIntegerField(null=True,blank=True)
 	page = models.PositiveIntegerField(null=True,blank=True)
 	date = models.DateField()
-
 	
 
 class WordArticleRelation(base,info):
 	war_word = models.ForeignKey(Word,on_delete=models.CASCADE)
 	war_article = models.ForeignKey(Article,on_delete=models.CASCADE)
 	count = models.PositiveIntegerField()
+	date = models.DateField(default = None)
 
-	@property
-	def name(self):
-		return self.word+ ' occurs ' + str(self.count) + ' times in: '+ self.text
+	def __str__(self):
+		m = self.war_word.w_word+ ' occurs ' + str(self.count)  
+		m += ' times in: '+ self.war_article.title
+		return m
 	
 	class Meta:
 		unique_together = [['war_word','war_article']]
