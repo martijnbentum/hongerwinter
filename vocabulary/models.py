@@ -1,22 +1,9 @@
 from django.db import models
 from utils.model_util import info
 
-class base(models.Model):
-	pass
-	
-	def __str__(self):
-		if hasattr(self,'name'):
-			return self.name
-		if hasattr(self,'w_word'):
-			return self.w_word
-		if hasattr(self,'title'):
-			return self.title
-		raise ValueError('no known attribute to set __str__')
 
-
-
-class Word(base,info):
-	w_word = models.CharField(max_length=100)
+class Word(models.Model,info):
+	word = models.CharField(max_length=100)
 	count = models.PositiveIntegerField(null=True,blank=True)
 	word_class = models.CharField(max_length=300)
 	pos = models.CharField(max_length=100)
@@ -24,14 +11,17 @@ class Word(base,info):
 	regional= models.BooleanField(default=False)
 	colonial= models.BooleanField(default=False)
 
+	def __str__(self):
+		return self.word
+
 	class Meta:
-		unique_together = [['w_word','pos']]
+		unique_together = [['word','pos']]
 
 
-class Paper(base,info):
+class Paper(models.Model,info):
 	title= models.CharField(max_length=400)
 	location= models.CharField(max_length=400)
-	location_category = models.CharField(max_length=400,default = '')
+	location_category = models.CharField(max_length=50,default = '')
 	language= models.CharField(max_length=400)
 	ids= models.CharField(max_length=400)
 	link = models.CharField(max_length=400,unique=True)
@@ -43,10 +33,12 @@ class Paper(base,info):
 	nword_tokens = models.PositiveIntegerField(null=True,blank=True)
 	date = models.DateField()
 
+	def __str__(self):
+		return self.title
 
-class Article(base,info):
+class Article(models.Model,info):
 	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True} 
-	a_paper = models.ForeignKey(Paper,**dargs)
+	paper = models.ForeignKey(Paper,**dargs)
 	title= models.CharField(max_length=400)
 	link = models.CharField(max_length=400,unique=True)
 	text = models.TextField(default = '')
@@ -55,19 +47,25 @@ class Article(base,info):
 	nword_tokens = models.PositiveIntegerField(null=True,blank=True)
 	page = models.PositiveIntegerField(null=True,blank=True)
 	date = models.DateField()
-	
-
-class WordArticleRelation(base,info):
-	war_word = models.ForeignKey(Word,on_delete=models.CASCADE)
-	war_article = models.ForeignKey(Article,on_delete=models.CASCADE)
-	count = models.PositiveIntegerField()
-	date = models.DateField(default = None)
 
 	def __str__(self):
-		m = self.war_word.w_word+ ' occurs ' + str(self.count)  
-		m += ' times in: '+ self.war_article.title
+		return self.title
+	
+
+class WordArticleRelation(models.Model,info):
+	word = models.ForeignKey(Word,on_delete=models.CASCADE)
+	article = models.ForeignKey(Article,on_delete=models.CASCADE)
+	count = models.PositiveIntegerField()
+	date = models.DateField(default = None)
+	location_category = models.CharField(max_length=50,default = '')
+	hongerwinter = models.BooleanField(default=False)
+	
+
+	def __str__(self):
+		m = self.word.word+ ' occurs ' + str(self.count)  
+		m += ' times in: '+ self.article.title
 		return m
 	
 	class Meta:
-		unique_together = [['war_word','war_article']]
+		unique_together = [['word','article']]
 
