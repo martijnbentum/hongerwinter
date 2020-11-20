@@ -74,12 +74,12 @@ class WordInfos:
 		self.output_dict = o
 		return o
 
-def load(self):
-	with open(self.filename) as fin:
-		self.text = fin.read()
-	self.dict = eval(self.text)
-	for word in self.dict.keys():
-		self.dict[word] = eval(self.dict[word])
+	def load(self):
+		with open(self.filename) as fin:
+			self.text = fin.read()
+		self.dict = eval(self.text)
+		for word in self.dict.keys():
+			self.dict[word] = eval(self.dict[word])
 			
 			
 
