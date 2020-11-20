@@ -5,12 +5,16 @@ import glob
 from vocabulary.models import Paper, Article, Word 
 from vocabulary.models import WordArticleRelation as war
 import time
-import ucto
+try:
+	import ucto
+	tokenizer = ucto.Tokenizer("tokconfig-nld",lowercase = True,
+		sentencedetection=False,paragraphdetection=False)
+except:
+	print('could not load ucto')
+	tokenizer = ''
 
 directory = '/vol/tensusers/mbentum/hongerwinter/oai2linerec/hongerwinter/'
 
-tokenizer = ucto.Tokenizer("tokconfig-nld",lowercase = True,
-	sentencedetection=False,paragraphdetection=False)
 
 lnd = dict([line.split('\t') for line in open('location_names_dict').read().split('\n') if line])
 
