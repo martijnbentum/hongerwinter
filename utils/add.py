@@ -8,6 +8,8 @@ import os
 from vocabulary.models import Paper as p
 from vocabulary.models import Article as a
 
+lnd = dict([line.split('\t') for line in open('location_names_dict').read().split('\n') if line])
+
 directory = '/vol/tensusers/mbentum/hongerwinter/oai2linerec/hongerwinter/'
 
 def get_filenames_ddd():
@@ -68,7 +70,9 @@ def log(p,f):
 	with open(directory+'db_log','a') as fout:
 		fout.write(m+'\n')
 
-
+def log_message(m):
+	with open(directory+'db_log','a') as fout:
+		fout.write(m+'\n')
 
 class Papers:
 	def __init__(self,filename='',t=''):
@@ -131,6 +135,7 @@ class Paper:
 		self.paper = p(
 			title= self.title,
 			location= self.spatial,
+			location_category = lnd[self.spatial] if self.spatial in lnd.keys() else 'na',
 			language= self.language,
 			ids = self.identifier,
 			link = self.link,
@@ -145,6 +150,7 @@ class Paper:
 		
 	def _make_db_articles(self):
 		if not hasattr(self,'paper'):self._make_paper()
+		if self.integrity_error:return
 		for article in self.articles:
 			article.make(self.paper)
 			
@@ -160,6 +166,7 @@ class Article:
 		self.xml = xml
 		self._set_info()
 		self.integrity_error = False
+		self.value_error = False
 		self.no_text = False
 
 	def __repr__(self):
@@ -179,7 +186,7 @@ class Article:
 			self.no_text = True
 			return
 		self.article = a(
-			a_paper = paper,
+			paper = paper,
 			title = self.title,
 			link = self.link,
 			text = self.text,
