@@ -3,42 +3,40 @@ from vocabulary.models import Article,Paper,Word
 from .add_words import article2counter, eta
 import time
 
-articles = []
+papers = []
 
 class AllWordCounts:
 	'''create counts for each year for different categories of newspapers.'''
-	def __init__(self,filename = 'all_word_counts'):
-		global articles
+	def __init__(self,filename = 'all_word_counts',location_category = 'landelijk'):
+		global papers
 		print('init..')
-		self.filename = filename
-		if not articles:
-			self.articles = list(Article.objects.all())
-			articles = self.articles
-		else: self.articles = articles
+		self.location_category = location_category
+		self.filename = filename + '_' + location_category
+		if not papers:
+			self.papers= [p for p in Paper.objects.all() if p.location_category == location_category]
+			papers= self.papers
+		else: self.papers= papers
 		self._make_counts()
 
 	def _make_counts(self):
-		self.regionaal, self.landelijk = {}, {}
+		self.d = {}
 		for name in 'decade,year,month'.split(','):
-			self.regionaal[name],self.landelijk[name] = {}, {}
+			self.d[name] = {}
+		npapers = len(self.papers)
 		print('counting...')
-		narticles = len(self.articles)#32724636#len(self.articles)
 		start = time.time()
-		for i,article in enumerate(self.articles):
-			print(eta(start,i,narticles))
-			print(i,narticles,'\t',article)
-			c = article2counter(article)
-			if article.nword_types == None:
-				article.nword_tokens = sum(c.values())
-				article.nword_types = len(c.keys())
-				article.save()
-			self._fill_dicts(article,sum(c.values()))
+		for i,paper in enumerate(self.papers):
+			if i != 0 and i%10 == 0:
+				print(eta(start,i,npapers))
+				print(i,npapers,'\t',article)
+			for article in paper.article_set.all():
+				self._fill_dicts(article)
+	
 
-	def _fill_dicts(self,article,count):
-		lc = article.paper.location_category
-		if lc not in 'landelijk,regionaal'.split(','): return
+	def _fill_dicts(self,article):
+		count = sum(article2counter(article).values())
 		date = article.date
-		d = getattr(self,lc)
+		d = self.d
 		t = make_decade(date.year)
 		if t not in d['decade'].keys(): d['decade'][t] = 0
 		if date.year not in d['year'].keys(): d['year'][date.year] = 0
