@@ -18,6 +18,7 @@ class AllWordCounts:
 		else: self.papers= papers
 		self._make_counts()
 
+
 	def _make_counts(self):
 		self.d = {}
 		for name in 'decade,year,month'.split(','):
@@ -45,6 +46,15 @@ class AllWordCounts:
 		d['year'][date.year] += count
 		d['month'][(date.year,date.month)] += count
 
+
+	def save(self):
+		o = {}
+		for t in 'decade,year,month'.split(','):
+			o[t] = str(self.d[t])
+		with open(self.filename,'w') as fout:
+			fout.write(str(o))
+		self.output_dict = o
+		return o
 
 
 
@@ -118,4 +128,6 @@ def make_word_dict(word):
 		if wa.date not in o.keys():o[wa.date] = 0
 		o[wa.date] += wa.count
 	return o
+
+
 
