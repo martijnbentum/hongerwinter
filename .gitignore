@@ -3,6 +3,8 @@ ddd-1982-ocr
 */migrations/
 *.pyc
 venv/*
+*.swp
+*/SWP/
 
 
 
