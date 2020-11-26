@@ -2,9 +2,13 @@ db.sqlite3
 ddd-1982-ocr
 */migrations/
 *.pyc
+*.png
+*.doc*
+*.pyc
 venv/*
 *.swp
 */SWP/
+*DS_Store
 
 
 
