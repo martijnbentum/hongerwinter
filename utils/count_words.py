@@ -7,16 +7,18 @@ papers = []
 
 class AllWordCounts:
 	'''create counts for each year for different categories of newspapers.'''
-	def __init__(self,filename = 'all_word_counts',location_category = 'landelijk'):
+	def __init__(self,filename = 'all_word_counts',location_category = 'landelijk', make = False):
 		global papers
 		print('init..')
 		self.location_category = location_category
 		self.filename = filename + '_' + location_category
-		if not papers:
-			self.papers= [p for p in Paper.objects.all() if p.location_category == location_category]
-			papers= self.papers
-		else: self.papers= papers
-		self._make_counts()
+		if make:
+			if not papers:
+				lc = location_category
+				self.papers= [p for p in Paper.objects.all() if p.location_category == lc]
+				papers= self.papers
+			else: self.papers= papers
+			self._make_counts()
 
 
 	def _make_counts(self):
@@ -55,6 +57,13 @@ class AllWordCounts:
 			fout.write(str(o))
 		self.output_dict = o
 		return o
+
+	def load(self):
+		with open(self.filename) as fin:
+			self.text = fin.read()
+		self.dict = eval(self.text)
+		for t in self.dict.keys():
+			self.dict[t] = eval(self.dict[t])
 
 
 
